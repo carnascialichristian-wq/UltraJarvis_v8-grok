@@ -35,7 +35,6 @@ Before starting new work, always re-read:
 - Critic suggests promote; PROTECTED expanded
 - memory.list_tags + registry entry
 - Prefer quality and integration over more helper stubs
-- Planner tool matching tightened (token-based, avoids short-key false positives)
 
 ## Remaining (priority order)
 1. Real gates when ruff/black available
