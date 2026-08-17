@@ -14,6 +14,7 @@ DEFAULT_PATH = Path("workspace/memory.jsonl")
 
 
 def remember(fact: str, *, tags: Optional[List[str]] = None, path: Optional[Path] = None) -> Dict[str, Any]:
+    """Append a fact to memory."""
     if not fact or not fact.strip():
         raise ValueError("fact required")
     path = path or DEFAULT_PATH
@@ -35,6 +36,9 @@ def recall(
     tag: Optional[str] = None,
     path: Optional[Path] = None,
 ) -> List[Dict[str, Any]]:
+    """
+    Return recent facts, optionally filtered by substring or tag.
+    """
     path = path or DEFAULT_PATH
     if not path.exists():
         return []
@@ -53,7 +57,22 @@ def recall(
     return results[-limit:]
 
 
-def clear(path: Optional[Path] = None) -> None:
-    path = path or DEFAULT_PATH
+def clear(path: Path = DEFAULT_PATH) -> None:
     if path.exists():
         path.unlink()
+
+
+def list_tags(path: Optional[Path] = None) -> Dict[str, int]:
+    """Return a count of facts per tag (most recent file state)."""
+    path = path or DEFAULT_PATH
+    counts: Dict[str, int] = {}
+    if not path.exists():
+        return counts
+    for line in path.read_text(encoding="utf-8").splitlines():
+        try:
+            e = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        for t in e.get("tags") or []:
+            counts[t] = counts.get(t, 0) + 1
+    return counts
