@@ -6,6 +6,11 @@ from typing import Any, Dict, List
 
 
 def critique(summary: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Given a job summary (from NaturalTaskRunner), produce a short critique.
+
+    Returns dict with: verdict, notes, suggested_next.
+    """
     status = (summary.get("status") or "").upper()
     notes: List[str] = list(summary.get("notes") or [])
     suggested: List[str] = []
@@ -14,7 +19,9 @@ def critique(summary: Dict[str, Any]) -> Dict[str, Any]:
         verdict = "OK"
         notes.append("Gates passed – safe to merge or enqueue follow-up polish.")
         suggested.append("Optionally run full project pytest.")
-        suggested.append("Consider promoting the generated tool into tools/ if useful.")
+        suggested.append(
+            "If useful, promote with: uj promote <job_dir> <module_name>"
+        )
     else:
         verdict = "NEEDS_WORK"
         notes.append("Gates failed – inspect gates.txt and fix before merging.")
