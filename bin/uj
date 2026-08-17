@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""Minimal UltraJarvis CLI (uj).
+
+Commands:
+  uj health          – run health scan
+  uj status          – show queue status
+  uj seed "prompt"   – enqueue a task
+  uj run             – process one job from the queue
+  uj run --all       – drain the queue (up to 20 jobs)
+  uj tools [--tag]   – list registered tools
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+
+def cmd_health(_: argparse.Namespace) -> int:
+    from core.health import run_health_scan, format_health_report
+
+    report = run_health_scan()
+    print(format_health_report(report))
+    return 0 if report["overall"] == "PASS" else 1
+
+
+def cmd_status(_: argparse.Namespace) -> int:
+    from core.job_worker import queue_status
+
+    s = queue_status()
+    print(f"Queue pending : {s['pending']}")
+    print(f"Done jobs     : {s['done']}")
+    print(f"Queue file    : {s['queue']}")
+    print(f"Done file     : {s['done_file']}")
+    return 0
+
+
+def cmd_seed(args: argparse.Namespace) -> int:
+    from core.job_worker import enqueue
+
+    if not args.prompt:
+        print('Usage: uj seed "your task description"')
+        return 2
+    rec = enqueue(args.prompt)
+    print(f"Enqueued: {rec['prompt'][:80]}…")
+    return 0
+
+
+def cmd_run(args: argparse.Namespace) -> int:
+    from core.job_worker import process_one, queue_status
+
+    limit = 20 if args.all else 1
+    processed = 0
+    for _ in range(limit):
+        result = process_one()
+        if result is None:
+            break
+        processed += 1
+        status = "OK" if result.get("ok") else "FAIL"
+        title = result.get("result", {}).get("title") or result.get("job", {}).get("prompt", "?")[:60]
+        print(f"  [{status}] {title}")
+    if processed == 0:
+        print("Queue empty.")
+    else:
+        print(f"Processed {processed} job(s). Remaining: {queue_status()['pending']}")
+    return 0
+
+
+def cmd_tools(args: argparse.Namespace) -> int:
+    from core.registry import get_registry
+
+    reg = get_registry()
+    tools = reg.list_tools(tag=args.tag)
+    if not tools:
+        print("No tools found.")
+        return 0
+    for t in tools:
+        tags = ",".join(t.tags) if t.tags else "-"
+        safe = "safe" if t.safe else "unsafe"
+        print(f"  {t.name:24} [{safe}] ({tags})")
+        print(f"    {t.description}")
+    print(f"\n{len(tools)} tool(s)")
+    return 0
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(prog="uj", description="UltraJarvis minimal CLI")
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    p_health = sub.add_parser("health", help="Run health scan")
+    p_health.set_defaults(func=cmd_health)
+
+    p_status = sub.add_parser("status", help="Show queue status")
+    p_status.set_defaults(func=cmd_status)
+
+    p_seed = sub.add_parser("seed", help="Enqueue a natural-language task")
+    p_seed.add_argument("prompt", nargs="?", default="")
+    p_seed.set_defaults(func=cmd_seed)
+
+    p_run = sub.add_parser("run", help="Process jobs from the queue")
+    p_run.add_argument("--all", action="store_true", help="Drain up to 20 jobs")
+    p_run.set_defaults(func=cmd_run)
+
+    p_tools = sub.add_parser("tools", help="List registered tools")
+    p_tools.add_argument("--tag", default=None, help="Filter by tag (e.g. io, search)")
+    p_tools.set_defaults(func=cmd_tools)
+
+    args = parser.parse_args(argv)
+    return args.func(args)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
