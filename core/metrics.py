@@ -1,40 +1,37 @@
-"""Lightweight metrics / snapshots for UltraJarvis."""
-
+"""JSONL metrics for UltraJarvis."""
 from __future__ import annotations
 
 import json
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Optional
 
-DEFAULT_PATH = Path("workspace/metrics.jsonl")
-
-
-def record(event: str, **data: Any) -> Dict[str, Any]:
-    entry = {"ts": time.time(), "event": event, **data}
-    path = DEFAULT_PATH
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-    return entry
+ROOT = Path(__file__).resolve().parent.parent
+METRICS_PATH = ROOT / "workspace" / "metrics.jsonl"
 
 
-def recent(limit: int = 20, path: Path = DEFAULT_PATH) -> List[Dict[str, Any]]:
-    if not path.exists():
+def record(event: str, **kwargs: Any) -> None:
+    """Append a metric event as one JSON line."""
+    METRICS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    row = {"ts": time.time(), "event": event, **kwargs}
+    with METRICS_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
+def recent(limit: int = 50, event: Optional[str] = None) -> list[dict]:
+    if not METRICS_PATH.exists():
         return []
-    lines = path.read_text(encoding="utf-8").strip().splitlines()
-    out: List[Dict[str, Any]] = []
-    for line in lines[-limit:]:
-        try:
-            out.append(json.loads(line))
-        except json.JSONDecodeError:
-            continue
-    return out
-
-
-def snapshot_counts(path: Path = DEFAULT_PATH) -> Dict[str, int]:
-    counts: Dict[str, int] = {}
-    for e in recent(limit=10_000, path=path):
-        name = e.get("event", "unknown")
-        counts[name] = counts.get(name, 0) + 1
-    return counts
+    rows: list[dict] = []
+    with METRICS_PATH.open(encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                obj = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if event and obj.get("event") != event:
+                continue
+            rows.append(obj)
+    return rows[-limit:]
