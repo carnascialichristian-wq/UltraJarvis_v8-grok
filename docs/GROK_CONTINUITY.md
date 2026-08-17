@@ -2,7 +2,5 @@
 
 Repo: https://github.com/carnascialichristian-wq/UltraJarvis_v8-grok
 
-**78 tests.** Phase 1 + Phase 2 starters (memory, critic, safety, style).
-CLI: health status seed run tools memory skills snapshot.
-
+**82 tests.** 16 tools. Phase 1+2 (memory, critic, safety, style, math_helpers).
 Continues until user says stop.
