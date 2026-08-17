@@ -2,5 +2,4 @@
 
 https://github.com/carnascialichristian-wq/UltraJarvis_v8-grok
 
-**84 tests · 18 tools**
-Continues until user says stop.
+**86 tests · 20 tools** — continuous until stop.
