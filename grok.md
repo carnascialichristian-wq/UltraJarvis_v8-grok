@@ -1,56 +1,54 @@
-# Grok Work Log & Continuity Rules — UltraJarvis_v8
+# Grok Continuity — UltraJarvis_v8
 
-**Primary Rule (MUST FOLLOW EVERY SESSION)**  
-At the **end of every work session or completed task**, Grok **must** update and extend both:
-1. This file (`grok.md`) — with a concise session report of what was done, errors, remaining work, and next steps.
-2. `taskgrok.md` — with a more detailed technical report intended for the other AIs.
+**Grok working repo:** https://github.com/carnascialichristian-wq/UltraJarvis_v8-grok  
+**Original repo:** https://github.com/mootmoot1/UltraJarvis_v8  
+**Local path:** `/home/workdir/artifacts/UltraJarvis_v8`
 
-This is the **highest priority rule**. Continuity across chats depends on it. Never skip the update.
+## Primary rules (MUST follow every session)
+1. At the **end of every work session or task**, update:
+   - `docs/GROK_CONTINUITY.md` (this file — preferred, stable)
+   - `grok.md` (may get wiped by environment — always rewrite)
+   - `taskgrok.md` (detailed hand-off for other AIs)
+2. Keep all tests green. Prefer extending existing modules over rewrites.
+3. Continue autonomous work until the user message contains **stop**.
 
-**Secondary Rule**  
+## Secondary rule
 Before starting new work, always re-read:
-- This `grok.md`
+- `docs/GROK_CONTINUITY.md`
 - `taskgrok.md`
-- `docs/DEVELOPER.md`
-- The current QUEUE / roadmap
+- `docs/DEVELOPER.md` (if present)
+- Current test count and `bin/uj tools`
 
----
+## Current state (2026-08-17 ~14:00 CEST)
+- **206 tests passed**
+- **135 tools** registered in `core/registry.py`
+- Pipeline E2E: seed → run → plan (registry-aware) → write (heuristics) → gates → critic/safety/style
+- CLI: health, status, seed, run, tools, memory, skills, snapshot, promote
+- Advisors: critic (suggests `uj promote`), safety, style
+- PROTECTED expanded; memory.list_tags added
+- Git: local commits on main; push often blocked — prefer local + continuity files
 
-## Project Context
+## What was completed (this session)
+- NaturalTaskRunner heuristics: gcd, clamp, mean, slugify, reverse_words, unique, flatten (+ prior)
+- promote_job_to_tools + uj promote
+- Planner surfaces matching registry tools
+- Critic suggests promote; PROTECTED expanded
+- memory.list_tags + registry entry
+- Prefer quality and integration over more helper stubs
+- Planner tool matching tightened (token-based, avoids short-key false positives)
 
-- **Original repo**: https://github.com/mootmoot1/UltraJarvis_v8
-- **Grok working repo**: https://github.com/carnascialichristian-wq/UltraJarvis_v8-grok
-- **Local path**: `/home/workdir/artifacts/UltraJarvis_v8`
-- **Goal**: Complete the UltraJarvis self-upgrade pipeline and Phase 1 roadmap items.
+## Remaining (priority order)
+1. Real gates when ruff/black available
+2. Optional auto-register after promote; richer planner↔catalog
+3. Phase 2: deeper memory, advisors, better LLM adapters
+4. Retry GitHub push when connector works
+5. Avoid unbounded helper explosion
 
----
+## How to continue
+1. Open/clone or work in `/home/workdir/artifacts/UltraJarvis_v8`
+2. Read this file + `taskgrok.md`
+3. Run `python -m pytest -q` and `python bin/uj tools`
+4. Pick next remaining item, implement + tests, keep suite green
+5. Update continuity files at the end
 
-## Session History (Grok)
-
-### 2026-08-17 — Initial QUEUE batch + Worker pipeline
-Completed QUEUE 8 items + job_worker + natural_tasks + uj CLI. Tests: 45 → 54 → 58.
-
-### 2026-08-17 — Continuity files + GitHub
-- Created grok.md + taskgrok.md with primary continuity rules.
-- GitHub write restored. Repo: https://github.com/carnascialichristian-wq/UltraJarvis_v8-grok
-
-### 2026-08-17 — Phase 1 tools
-- tools/files.py, websearch, browser, os_control + tests.
-
-### 2026-08-17 (continued) — Registry + uj tools
-- core/registry.py (ToolSpec catalog + dynamic call)
-- bin/uj tools [--tag] command
-- tests/test_registry.py
-- Full suite: **58 passed**
-
-**Remaining (priority):**
-1. Email / automation stubs
-2. Structured logging + metrics
-3. Real gates (ruff/black/pytest when available)
-4. NaturalTaskRunner controlled real writes
-5. Phase 2+
-
----
-
-*Last updated: 2026-08-17 by Grok*  
-*Remember: always extend this file and taskgrok.md at the end of every session.*
+*Last updated: 2026-08-17 by Grok*

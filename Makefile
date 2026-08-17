@@ -1,4 +1,4 @@
-.PHONY: test health tools snapshot run
+.PHONY: test health tools snapshot seed run
 
 test:
 	python -m pytest tests/ -q
@@ -11,6 +11,9 @@ tools:
 
 snapshot:
 	python bin/uj snapshot
+
+seed:
+	python bin/uj seed "$(MSG)"
 
 run:
 	python bin/uj run --all

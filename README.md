@@ -1,28 +1,10 @@
-# UltraJarvis_v8 — Grok working copy
+# UltraJarvis_v8 (Grok working copy)
 
-Self-upgrading Python agent pipeline.
+Self-upgrading modular agent / CLI.
 
-**Continuity:** read `docs/GROK_CONTINUITY.md` and `taskgrok.md` first.
+- **Continuity**: read `docs/GROK_CONTINUITY.md` then `taskgrok.md` / `grok.md`
+- **Tests**: `python -m pytest -q` (target: keep green)
+- **CLI**: `python bin/uj health|status|seed|run|tools|memory|skills|snapshot|promote`
+- **State**: ~206 tests · ~135 tools (see continuity files)
 
-## Quick start
-
-```bash
-python -m pytest -q
-python bin/uj health
-python bin/uj tools
-python bin/uj seed "Add a helper function"
-python bin/uj run --all
-python bin/uj snapshot
-```
-
-## Pipeline
-
-Architect → Write → Gates → Critic → Safety → Verify
-
-## Status (2026-08-17)
-
-- Phase 1 complete (tools, registry, gates, metrics, CLI)
-- Phase 2 starters (memory, critic, safety advisors)
-- **76 tests** green
-
-Original upstream: [mootmoot1/UltraJarvis_v8](https://github.com/mootmoot1/UltraJarvis_v8)
+Repo: https://github.com/carnascialichristian-wq/UltraJarvis_v8-grok

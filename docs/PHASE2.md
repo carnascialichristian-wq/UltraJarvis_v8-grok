@@ -1,10 +1,18 @@
-# Phase 2 roadmap
+# Phase 2 roadmap (in progress)
 
 ## Done
-- memory, critic, safety, style advisors
-- uj memory / snapshot / skills
+- [x] core/memory.py – JSONL facts
+- [x] advisors/critic.py
+- [x] advisors/safety.py
+- [x] uj memory / snapshot / skills
 
 ## Next
-- Embedding recall
-- LLM planner/writer adapters
-- Multi-file jobs
+- [ ] Embedding-backed recall (optional, needs model)
+- [ ] Planner LLM adapter behind cloud_bridge
+- [ ] Writer LLM adapter (replace heuristics)
+- [ ] Multi-file job support with dependency graph
+- [ ] Advisor: style (docstrings, naming)
+
+## Later
+- Monetization prep
+- Multi-agent debate loop
